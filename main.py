@@ -3,6 +3,9 @@ import streamlit as st
 from dataclasses import dataclass, field
 from datetime import datetime
 
+from lagring import CSVFil
+
+deltakere_fil = CSVFil("deltakere.csv", kolonner=["id", "navn"])
 
 @dataclass
 class Runde:
@@ -10,32 +13,24 @@ class Runde:
     runde_nummer: int
     start_tid: datetime
     slutt_tid: datetime = field(init=False)
-    tid_brukt: int =  field(init=False)
+    tid_brukt_minutter:  int =  field(init=False)
+    tid_brukt_sekunder: int = field(init=False)
 
 
     def beregn(self):
         self.slutt_tid = datetime.now()
-        self.tid_brukt =  self.slutt_tid - self.start_tid
-
-
-    def lagre(self):
-        pass
-
+        delta_tid  = self.slutt_tid - self.start_tid
+        self.tid_brukt_minutter = delta_tid.seconds // 60
+        self.tid_brukt_sekunder = delta_tid.seconds % 60
 
 
 @dataclass
 class Deltaker:
     id: str
     navn: str
-    runder: list[Runde] = field(default_factory=list, init=False)
 
-
-    def legg_til_runde(self, runde: Runde) -> None:
-        self.runder.append(runde)
-
-    def lagre(self):
-        pass
-
+    def rad(self):
+        return [value for value in self.__dict__.values()]
 
 
 
@@ -58,7 +53,10 @@ with registrering:
 
         if registrering_knapp:
             deltaker = Deltaker(id=deltaker_id, navn=deltaker_navn)
-            deltaker.lagre()
+            print(deltaker.rad())
+            deltakere_fil.skriv(rad=deltaker.rad())
+            deltakere_fil.lukk()
+
 
 
 
