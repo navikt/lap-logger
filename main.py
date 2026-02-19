@@ -53,9 +53,7 @@ with registrering:
 
         if registrering_knapp:
             deltaker = Deltaker(id=deltaker_id, navn=deltaker_navn)
-            print(deltaker.rad())
             deltakere_fil.skriv(rad=deltaker.rad())
-            deltakere_fil.lukk()
 
 
 
