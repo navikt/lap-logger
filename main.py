@@ -60,7 +60,13 @@ with registrering:
 
 
     st.header("Registrerte deltakere")
-    st.table()
+    deltakere = deltakere_fil.les_hele_filen()
+    if len(deltakere) > 1:
+        # Lager en liste med dictionaries for å vise i tabellen, og hopper over headeren, r := tilordner resultatet av split til r
+        rader = [{"Navn": (r := rad.split(","))[1], "Id": r[0]} for rad in deltakere[1:]]
+        st.dataframe(rader, hide_index=True)
+    else:
+        st.write("Ingen deltakere registrert ennå.")
 
 
 with oversikt:
