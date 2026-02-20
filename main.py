@@ -5,6 +5,11 @@ from datetime import datetime
 
 from lagring import CSVFil
 
+def wide_space_default():
+    st.set_page_config(layout="wide")
+
+wide_space_default()
+
 deltakere_fil = CSVFil("deltakere.csv", kolonner=["id", "navn"])
 
 @dataclass
