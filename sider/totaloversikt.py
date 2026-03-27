@@ -8,7 +8,6 @@ from hjelper import (
     total_sekunder, formater_tid, runde_starttid,
 )
 
-
 def vis(fane):
     deltaker_map = les_deltakere()
     alle_tider = les_rundetider()
