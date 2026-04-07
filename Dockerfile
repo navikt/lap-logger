@@ -3,6 +3,7 @@ FROM python:3.14-slim
 WORKDIR /app
 
 ENV UV_CACHE_DIR=/tmp/uv-cache
+ENV DATA_DIR=/tmp
 
 COPY pyproject.toml uv.lock ./
 RUN pip install uv && uv sync --frozen --no-dev
