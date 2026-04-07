@@ -14,11 +14,16 @@ class CSVFil:
         self._sjekk_header()
 
     def _sjekk_header(self):
+        forventet_header = ",".join(self.kolonner)
         with open(self._sti, "a+") as fil:
             fil.seek(0)
-            rad = fil.readline()
-            if rad == "":
-                fil.write(f"{",".join(self.kolonner)}\n")
+            innhold = fil.read()
+            if innhold == "":
+                fil.write(f"{forventet_header}\n")
+            elif not innhold.startswith(forventet_header):
+                fil.seek(0)
+                fil.truncate()
+                fil.write(f"{forventet_header}\n{innhold}")
 
     def skriv(self, rad: list[str]):
         with open(self._sti, "a") as f:
