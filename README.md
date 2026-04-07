@@ -7,6 +7,5 @@
 3. Aktiver venv: `source .venv/bin/activate`
 3. installer pakker med uv: `uv sync`
 
-
 ## Kjør 
 Tast inn i kommandolinje med venv aktivert: `streamlit run main.py`

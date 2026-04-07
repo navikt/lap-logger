@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from lagring import CSVFil
-from config import ANTALL_RUNDER, RUNDE_START_TIME
+from config import ANTALL_RUNDER, RUNDE_START_TIME, EVENT_DATO
 
 
 deltakere_fil = CSVFil("deltakere.csv", kolonner=["id", "navn"])
@@ -46,8 +46,7 @@ def formater_tid(total_sek: int) -> str:
 
 
 def runde_starttid(runde_nr: int) -> datetime:
-    """Returnerer starttidspunkt for en gitt runde i dag."""
-    naa = datetime.now()
+    """Returnerer starttidspunkt for en gitt runde på event-dagen."""
     t = RUNDE_START_TIME + (runde_nr - 1)
-    return naa.replace(hour=t, minute=0, second=0, microsecond=0)
+    return datetime(*EVENT_DATO, hour=t, minute=0, second=0)
 

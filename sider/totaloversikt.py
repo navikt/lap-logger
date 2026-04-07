@@ -1,5 +1,4 @@
 import streamlit as st
-from streamlit_autorefresh import st_autorefresh
 from datetime import datetime
 
 from config import ANTALL_RUNDER, RUNDE_START_TIME
@@ -7,6 +6,7 @@ from hjelper import (
     les_deltakere, les_rundetider,
     total_sekunder, formater_tid, runde_starttid,
 )
+
 
 def vis(fane):
     deltaker_map = les_deltakere()
@@ -39,7 +39,6 @@ def vis(fane):
                 st.error(countdown_tekst)
             else:
                 st.info(countdown_tekst)
-            st_autorefresh(interval=1000, key="countdown_refresh")
         elif naa >= runde_starttid(ANTALL_RUNDER):
             st.success("✅ **Alle runder er i gang eller fullført!**")
         else:
