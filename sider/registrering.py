@@ -1,4 +1,5 @@
 import streamlit as st
+import time
 
 from modeller import Deltaker
 from hjelper import les_deltakere, deltakere_fil
@@ -6,6 +7,18 @@ from hjelper import les_deltakere, deltakere_fil
 
 def vis(fane):
     with fane:
+        # Vis feedback fra forrige registrering (vises i 5 sek)
+        feedback_key = "feedback_registrering"
+        if feedback_key in st.session_state:
+            melding, tidsstempel, er_feil = st.session_state[feedback_key]
+            if time.time() - tidsstempel < 5:
+                if er_feil:
+                    st.error(melding)
+                else:
+                    st.success(melding)
+            else:
+                del st.session_state[feedback_key]
+
         with st.form("Registrering", clear_on_submit=True, border=False):
             col1, col2, col3 = st.columns(3)
             with col1:
@@ -19,10 +32,23 @@ def vis(fane):
             if registrering_knapp:
                 eksisterende = les_deltakere()
                 if deltaker_id in eksisterende:
-                    st.error(f"❌ Id '{deltaker_id}' er allerede registrert ({eksisterende[deltaker_id]})")
+                    st.session_state[feedback_key] = (
+                        f"❌ Id '{deltaker_id}' er allerede registrert ({eksisterende[deltaker_id]})",
+                        time.time(), True,
+                    )
+                elif not deltaker_id or not deltaker_navn:
+                    st.session_state[feedback_key] = (
+                        "❌ Både navn og id må fylles ut",
+                        time.time(), True,
+                    )
                 else:
                     deltaker = Deltaker(id=deltaker_id, navn=deltaker_navn)
                     deltakere_fil.skriv(rad=deltaker.rad())
+                    st.session_state[feedback_key] = (
+                        f"✅ {deltaker_navn} ({deltaker_id}) registrert!",
+                        time.time(), False,
+                    )
+                st.rerun()
 
         st.header("Registrerte deltakere")
         deltakere = deltakere_fil.les_hele_filen()
