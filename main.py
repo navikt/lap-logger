@@ -1,4 +1,5 @@
 import streamlit as st
+from streamlit_autorefresh import st_autorefresh
 
 from config import ANTALL_RUNDER, EVENT_DATO, RUNDE_START_TIME, TIDSSONE
 from sider import registrering, runder, totaloversikt, leaderboard
@@ -6,6 +7,7 @@ from datetime import datetime
 
 
 st.set_page_config(layout="wide")
+st_autorefresh(interval=1000, key="global_refresh")
 
 st.markdown(
     """

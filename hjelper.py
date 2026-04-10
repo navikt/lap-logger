@@ -26,12 +26,15 @@ def les_rundetider() -> list[dict]:
     for linje in linjer[1:]:
         deler = linje.strip().split(",")
         if len(deler) >= 4:
-            rader.append({
-                "id": deler[0],
-                "runde": int(deler[1]),
-                "minutter": int(deler[2]),
-                "sekunder": int(deler[3]),
-            })
+            try:
+                rader.append({
+                    "id": deler[0],
+                    "runde": int(deler[1]),
+                    "minutter": int(deler[2]),
+                    "sekunder": int(deler[3]),
+                })
+            except ValueError:
+                continue
     return rader
 
 

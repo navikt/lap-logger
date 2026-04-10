@@ -9,15 +9,13 @@ def vis(fane):
     with fane:
         # Vis feedback fra forrige registrering (vises i 5 sek)
         feedback_key = "feedback_registrering"
-        feedback_placeholder = st.empty()
         if feedback_key in st.session_state:
             melding, tidsstempel, er_feil = st.session_state[feedback_key]
-            gjenvaerende = 5 - (time.time() - tidsstempel)
-            if gjenvaerende > 0:
+            if time.time() - tidsstempel < 5:
                 if er_feil:
-                    feedback_placeholder.error(melding)
+                    st.error(melding)
                 else:
-                    feedback_placeholder.success(melding)
+                    st.success(melding)
             else:
                 del st.session_state[feedback_key]
 
@@ -68,12 +66,4 @@ def vis(fane):
         else:
             st.write("Ingen deltakere registrert ennå.")
 
-        # Fjern feedback etter gjenværende tid
-        if feedback_key in st.session_state:
-            _, tidsstempel, _ = st.session_state[feedback_key]
-            gjenvaerende = 5 - (time.time() - tidsstempel)
-            if gjenvaerende > 0:
-                time.sleep(gjenvaerende)
-            feedback_placeholder.empty()
-            del st.session_state[feedback_key]
 
