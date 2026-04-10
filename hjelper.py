@@ -43,8 +43,11 @@ def total_sekunder(m: int, s: int) -> int:
 
 
 def formater_tid(total_sek: int) -> str:
-    m = total_sek // 60
+    t = total_sek // 3600
+    m = (total_sek % 3600) // 60
     s = total_sek % 60
+    if t > 0:
+        return f"{t}t {m:02d}m {s:02d}s"
     return f"{m}m {s:02d}s"
 
 
