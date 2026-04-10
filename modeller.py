@@ -1,6 +1,8 @@
 from dataclasses import dataclass, field
 from datetime import datetime
 
+from config import TIDSSONE
+
 
 @dataclass
 class Runde:
@@ -12,7 +14,7 @@ class Runde:
     tid_brukt_sekunder: int = field(init=False)
 
     def beregn(self):
-        self.slutt_tid = datetime.now()
+        self.slutt_tid = datetime.now(TIDSSONE)
         delta_tid = self.slutt_tid - self.start_tid
         self.tid_brukt_minutter = delta_tid.seconds // 60
         self.tid_brukt_sekunder = delta_tid.seconds % 60

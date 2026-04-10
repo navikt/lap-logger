@@ -1,7 +1,7 @@
 import streamlit as st
 from datetime import datetime
 
-from config import ANTALL_RUNDER, RUNDE_START_TIME
+from config import ANTALL_RUNDER, RUNDE_START_TIME, TIDSSONE
 from hjelper import (
     les_deltakere, les_rundetider,
     total_sekunder, formater_tid, runde_starttid,
@@ -16,7 +16,7 @@ def vis(fane):
         st.header("Totaloversikt")
 
         # Countdown til neste runde
-        naa = datetime.now()
+        naa = datetime.now(TIDSSONE)
         neste_runde = None
         for rn in range(1, ANTALL_RUNDER + 1):
             start = runde_starttid(rn)

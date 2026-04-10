@@ -55,7 +55,11 @@ def vis(fane):
         st.header("Registrerte deltakere")
         deltakere = deltakere_fil.les_hele_filen()
         if len(deltakere) > 1:
-            rader = [{"Nr": i, "Navn": (r := rad.strip().split(","))[1], "Id": r[0]} for i, rad in enumerate(deltakere[1:], start=1)]
+            rader = [
+                {"Nr": i, "Navn": r[1], "Id": r[0]}
+                for i, rad in enumerate(deltakere[1:], start=1)
+                if len(r := rad.strip().split(",")) >= 2
+            ]
             st.dataframe(rader, hide_index=True, column_config={
                 "Nr": st.column_config.NumberColumn(width="small"),
                 "Navn": st.column_config.TextColumn(width="large"),

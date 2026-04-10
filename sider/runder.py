@@ -2,7 +2,7 @@ import streamlit as st
 import time
 from datetime import datetime
 
-from config import ANTALL_RUNDER, RUNDE_START_TIME
+from config import ANTALL_RUNDER, RUNDE_START_TIME, TIDSSONE
 from hjelper import (
     les_deltakere, les_rundetider, rundetider_fil,
     total_sekunder, formater_tid, runde_starttid,
@@ -49,7 +49,7 @@ def vis(faner):
                             time.time(), True,
                         )
                     else:
-                        naa = datetime.now()
+                        naa = datetime.now(TIDSSONE)
                         delta = naa - starttid
                         tot_sek = max(int(delta.total_seconds()), 0)
                         rmin = tot_sek // 60

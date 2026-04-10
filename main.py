@@ -1,6 +1,6 @@
 import streamlit as st
 
-from config import ANTALL_RUNDER, EVENT_DATO, RUNDE_START_TIME
+from config import ANTALL_RUNDER, EVENT_DATO, RUNDE_START_TIME, TIDSSONE
 from sider import registrering, runder, totaloversikt, leaderboard
 from datetime import datetime
 
@@ -21,8 +21,8 @@ st.markdown(
 )
 
 # Overskrift med countdown til arrangementet
-event_start = datetime(*EVENT_DATO, hour=RUNDE_START_TIME)
-naa = datetime.now()
+event_start = datetime(*EVENT_DATO, hour=RUNDE_START_TIME, tzinfo=TIDSSONE)
+naa = datetime.now(TIDSSONE)
 col_title, col_cd = st.columns([3, 2])
 with col_title:
     st.title("Nav Backyard 2026 🤘🏻💥")
