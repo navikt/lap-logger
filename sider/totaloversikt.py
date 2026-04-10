@@ -67,7 +67,12 @@ def vis(fane):
                 }
 
             tabell = []
-            for did, runder in per_deltaker.items():
+            # Sorter: flest runder først, deretter lavest totaltid
+            sortert_deltakere = sorted(
+                per_deltaker.items(),
+                key=lambda x: (-len(x[1]), sum(x[1].values())),
+            )
+            for did, runder in sortert_deltakere:
                 navn = deltaker_map.get(did, did)
 
                 # Rad 1: Akkumulert totaltid etter hver runde
