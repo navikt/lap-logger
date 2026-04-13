@@ -1,5 +1,4 @@
 import streamlit as st
-import time
 
 import lagring
 from hjelper import les_deltakere
@@ -7,17 +6,10 @@ from hjelper import les_deltakere
 
 def vis(fane):
     with fane:
-        # Vis feedback fra forrige registrering (vises i 5 sek)
-        feedback_key = "feedback_registrering"
-        if feedback_key in st.session_state:
-            melding, tidsstempel, er_feil = st.session_state[feedback_key]
-            if time.time() - tidsstempel < 5:
-                if er_feil:
-                    st.error(melding)
-                else:
-                    st.success(melding)
-            else:
-                del st.session_state[feedback_key]
+        # Vis toast fra forrige rerun
+        if "toast_registrering" in st.session_state:
+            melding, ikon = st.session_state.pop("toast_registrering")
+            st.toast(melding, icon=ikon)
 
         with st.form("Registrering", clear_on_submit=True, border=False):
             col1, col2, col3 = st.columns(3)
@@ -32,20 +24,17 @@ def vis(fane):
             if registrering_knapp:
                 eksisterende = les_deltakere()
                 if deltaker_id in eksisterende:
-                    st.session_state[feedback_key] = (
-                        f"❌ Id '{deltaker_id}' er allerede registrert ({eksisterende[deltaker_id]})",
-                        time.time(), True,
+                    st.session_state["toast_registrering"] = (
+                        f"Id '{deltaker_id}' er allerede registrert ({eksisterende[deltaker_id]})", "❌",
                     )
                 elif not deltaker_id or not deltaker_navn:
-                    st.session_state[feedback_key] = (
-                        "❌ Både navn og id må fylles ut",
-                        time.time(), True,
+                    st.session_state["toast_registrering"] = (
+                        "Både navn og id må fylles ut", "❌",
                     )
                 else:
                     lagring.legg_til_deltaker(deltaker_id, deltaker_navn)
-                    st.session_state[feedback_key] = (
-                        f"✅ {deltaker_navn} ({deltaker_id}) registrert!",
-                        time.time(), False,
+                    st.session_state["toast_registrering"] = (
+                        f"{deltaker_navn} ({deltaker_id}) registrert!", "✅",
                     )
                 st.rerun()
 

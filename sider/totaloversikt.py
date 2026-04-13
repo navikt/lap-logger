@@ -24,13 +24,22 @@ def vis(fane):
         if neste_runde is not None:
             tid_igjen = runde_starttid(neste_runde) - naa
             total_sek_igjen = max(int(tid_igjen.total_seconds()), 0)
-            minutter_igjen = total_sek_igjen // 60
-            sekunder_igjen = total_sek_igjen % 60
             klokkeslett = f"kl {RUNDE_START_TIME + neste_runde - 1}:00"
+
+            dager = total_sek_igjen // 86400
+            timer = (total_sek_igjen % 86400) // 3600
+            minutter = (total_sek_igjen % 3600) // 60
+
+            deler = []
+            if dager > 0:
+                deler.append(f"{dager}d")
+            if dager > 0 or timer > 0:
+                deler.append(f"{timer:02d}t")
+            deler.append(f"{minutter:02d}m")
 
             countdown_tekst = (
                 f"⏱️ **Runde {neste_runde}** ({klokkeslett}) starter om\n"
-                f"## {minutter_igjen:02d}m {sekunder_igjen:02d}s"
+                f"## {' '.join(deler)}"
             )
             if total_sek_igjen < 300:
                 st.error(countdown_tekst)

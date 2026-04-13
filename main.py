@@ -7,7 +7,7 @@ from datetime import datetime
 
 
 st.set_page_config(layout="wide")
-st_autorefresh(interval=1000, key="global_refresh")
+st_autorefresh(interval=60000, key="global_refresh")
 
 st.markdown(
     """
@@ -30,21 +30,17 @@ with col_title:
     st.title("Nav Backyard 2026 🤘🏻💥")
 with col_cd:
     if naa < event_start:
-        tid_igjen = event_start - naa
-        total_sek = max(int(tid_igjen.total_seconds()), 0)
+        total_sek = max(int((event_start - naa).total_seconds()), 0)
         dager = total_sek // 86400
-        rest = total_sek % 86400
-        timer = rest // 3600
-        rest = rest % 3600
-        minutter = rest // 60
-        sekunder = rest % 60
+        timer = (total_sek % 86400) // 3600
+        minutter = (total_sek % 3600) // 60
 
         deler = []
         if dager > 0:
             deler.append(f"{dager}d")
         if dager > 0 or timer > 0:
             deler.append(f"{timer:02d}t")
-        deler.append(f"{minutter:02d}m {sekunder:02d}s")
+        deler.append(f"{minutter:02d}m")
 
         countdown_tekst = f"### ⏱️ Starter om {' '.join(deler)}"
         if total_sek < 300:

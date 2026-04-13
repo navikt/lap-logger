@@ -1,5 +1,4 @@
 import streamlit as st
-import time
 from datetime import datetime
 
 import lagring
@@ -17,17 +16,11 @@ def vis(faner):
             st.header(f"Runde {runde_nr}")
             st.info(f"🕐 Starttid: **kl {RUNDE_START_TIME + runde_nr - 1}:00**")
 
-            # Vis feedback fra forrige registrering (vises i 5 sek)
-            feedback_key = f"feedback_runde_{runde_nr}"
-            if feedback_key in st.session_state:
-                melding, tidsstempel, er_feil = st.session_state[feedback_key]
-                if time.time() - tidsstempel < 5:
-                    if er_feil:
-                        st.error(melding)
-                    else:
-                        st.success(melding)
-                else:
-                    del st.session_state[feedback_key]
+            # Vis toast fra forrige rerun
+            toast_key = f"toast_runde_{runde_nr}"
+            if toast_key in st.session_state:
+                melding, ikon = st.session_state.pop(toast_key)
+                st.toast(melding, icon=ikon)
 
             with st.form(f"runde_{runde_nr}_form", clear_on_submit=True, border=False):
                 c1, c2 = st.columns([2, 1])
@@ -39,14 +32,13 @@ def vis(faner):
 
                 if lagre_runde and rid:
                     if lagring.finnes_rundetid(rid, runde_nr):
-                        st.session_state[feedback_key] = (
-                            f"❌ {deltaker_map.get(rid, rid)} er allerede registrert i runde {runde_nr}",
-                            time.time(), True,
+                        navn = deltaker_map.get(rid, rid)
+                        st.session_state[toast_key] = (
+                            f"{navn} er allerede registrert i runde {runde_nr}", "❌",
                         )
                     elif rid not in deltaker_map:
-                        st.session_state[feedback_key] = (
-                            f"❌ Id '{rid}' er ikke registrert som deltaker",
-                            time.time(), True,
+                        st.session_state[toast_key] = (
+                            f"Id '{rid}' er ikke registrert som deltaker", "❌",
                         )
                     else:
                         naa = datetime.now(TIDSSONE)
@@ -54,9 +46,8 @@ def vis(faner):
                         tot_sek = max(int(delta.total_seconds()), 0)
                         lagring.legg_til_rundetid(rid, runde_nr, tot_sek)
                         navn = deltaker_map.get(rid, rid)
-                        st.session_state[feedback_key] = (
-                            f"✅ {navn} — {formater_tid(tot_sek)}",
-                            time.time(), False,
+                        st.session_state[toast_key] = (
+                            f"{navn} — {formater_tid(tot_sek)}", "✅",
                         )
                     st.rerun()
 
