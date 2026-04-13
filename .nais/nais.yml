@@ -21,4 +21,4 @@ spec:
   accessPolicy:
     outbound:
       external:
-        - host: "https://feevuyuxjcrspsapihkm.supabase.co"
+        - host: https://feevuyuxjcrspsapihkm.supabase.co
