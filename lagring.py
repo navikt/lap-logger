@@ -21,11 +21,15 @@ _key: str = _hent_secret("SUPABASE_KEY")
 _supabase: Client = create_client(_url, _key)
 
 
-@st.cache_data(ttl=5)
+@st.cache_data(ttl=5, show_spinner=False)
 def les_deltakere() -> list[dict]:
     """Returnerer liste med dicts: {'id': ..., 'navn': ..., 'startnummer': ...}"""
-    resp = _supabase.table("deltakere").select("*").order("startnummer").execute()
-    return resp.data
+    try:
+        resp = _supabase.table("deltakere").select("*").order("startnummer").execute()
+        return resp.data
+    except Exception as e:
+        st.error(f"Kunne ikke hente deltakere: {e}")
+        return []
 
 
 def neste_startnummer() -> int:
@@ -42,11 +46,15 @@ def legg_til_deltaker(deltaker_id: str, navn: str) -> None:
     les_deltakere.clear()
 
 
-@st.cache_data(ttl=5)
+@st.cache_data(ttl=5, show_spinner=False)
 def les_rundetider() -> list[dict]:
     """Returnerer liste med dicts: {'id': ..., 'deltaker_id': ..., 'runde': ..., 'tid_sekunder': ...}"""
-    resp = _supabase.table("rundetider").select("*").execute()
-    return resp.data
+    try:
+        resp = _supabase.table("rundetider").select("*").execute()
+        return resp.data
+    except Exception as e:
+        st.error(f"Kunne ikke hente rundetider: {e}")
+        return []
 
 
 def legg_til_rundetid(deltaker_id: str, runde: int, tid_sekunder: int) -> None:

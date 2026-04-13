@@ -18,3 +18,7 @@ spec:
       memory: 512Mi
   envFrom:
     - secret: backyard-supabase
+  accessPolicy:
+    outbound:
+      external:
+        - host: "https://feevuyuxjcrspsapihkm.supabase.co"
