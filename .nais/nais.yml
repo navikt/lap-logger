@@ -16,3 +16,5 @@ spec:
     requests:
       cpu: 100m
       memory: 512Mi
+  envFrom:
+    - secret: supabase-credentials

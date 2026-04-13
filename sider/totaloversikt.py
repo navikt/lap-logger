@@ -2,10 +2,7 @@ import streamlit as st
 from datetime import datetime
 
 from config import ANTALL_RUNDER, RUNDE_START_TIME, TIDSSONE
-from hjelper import (
-    les_deltakere, les_rundetider,
-    total_sekunder, formater_tid, runde_starttid,
-)
+from hjelper import les_deltakere, les_rundetider, formater_tid, runde_starttid
 
 
 def vis(fane):
@@ -48,18 +45,16 @@ def vis(fane):
             # Bygg en rad per deltaker med tid per runde + total
             per_deltaker: dict[str, dict[int, int]] = {}
             for t in alle_tider:
-                per_deltaker.setdefault(t["id"], {})[t["runde"]] = total_sekunder(
-                    t["minutter"], t["sekunder"]
-                )
+                per_deltaker.setdefault(t["id"], {})[t["runde"]] = t["tid_sekunder"]
 
             # Beregn rangering per runde for medaljer
             medaljer = {1: "🥇", 2: "🥈", 3: "🥉"}
             runde_rangeringer: dict[int, dict[str, int]] = {}
             for rn in range(1, ANTALL_RUNDER + 1):
                 tider_i_runde = [
-                    (did, runder[rn])
-                    for did, runder in per_deltaker.items()
-                    if rn in runder
+                    (did, runder_dict[rn])
+                    for did, runder_dict in per_deltaker.items()
+                    if rn in runder_dict
                 ]
                 tider_i_runde.sort(key=lambda x: x[1])
                 runde_rangeringer[rn] = {
@@ -72,17 +67,17 @@ def vis(fane):
                 per_deltaker.items(),
                 key=lambda x: (-len(x[1]), sum(x[1].values())),
             )
-            for did, runder in sortert_deltakere:
+            for did, runder_dict in sortert_deltakere:
                 navn = deltaker_map.get(did, did)
 
                 # Rad 1: Akkumulert totaltid etter hver runde
                 rad_total: dict[str, str] = {"Deltaker": navn}
                 akkumulert = 0
                 for rn in range(1, ANTALL_RUNDER + 1):
-                    if rn in runder:
-                        akkumulert += runder[rn]
+                    if rn in runder_dict:
+                        akkumulert += runder_dict[rn]
                     if rn < ANTALL_RUNDER:
-                        if rn in runder:
+                        if rn in runder_dict:
                             rad_total[f"Runde {rn}"] = formater_tid(akkumulert)
                         else:
                             rad_total[f"Runde {rn}"] = "—"
@@ -91,23 +86,23 @@ def vis(fane):
                 # Rad 2: Rundetid per runde med medaljer
                 rad_runde: dict[str, str] = {"Deltaker": ""}
                 for rn in range(1, ANTALL_RUNDER):
-                    if rn in runder:
+                    if rn in runder_dict:
                         plass = runde_rangeringer[rn].get(did, 0)
                         medalje = medaljer.get(plass, "")
                         rad_runde[f"Runde {rn}"] = (
-                            f"{medalje} {formater_tid(runder[rn])}"
+                            f"{medalje} {formater_tid(runder_dict[rn])}"
                             if medalje
-                            else formater_tid(runder[rn])
+                            else formater_tid(runder_dict[rn])
                         )
                     else:
                         rad_runde[f"Runde {rn}"] = "—"
-                if ANTALL_RUNDER in runder:
+                if ANTALL_RUNDER in runder_dict:
                     plass = runde_rangeringer[ANTALL_RUNDER].get(did, 0)
                     medalje = medaljer.get(plass, "")
                     rad_runde["Total"] = (
-                        f"{medalje} {formater_tid(runder[ANTALL_RUNDER])}"
+                        f"{medalje} {formater_tid(runder_dict[ANTALL_RUNDER])}"
                         if medalje
-                        else formater_tid(runder[ANTALL_RUNDER])
+                        else formater_tid(runder_dict[ANTALL_RUNDER])
                     )
                 else:
                     rad_runde["Total"] = "—"

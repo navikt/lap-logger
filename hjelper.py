@@ -1,45 +1,26 @@
 from datetime import datetime
 
-from lagring import CSVFil
-from config import ANTALL_RUNDER, RUNDE_START_TIME, EVENT_DATO, TIDSSONE
-
-
-deltakere_fil = CSVFil("deltakere.csv", kolonner=["id", "navn"])
-rundetider_fil = CSVFil("rundetider.csv", kolonner=["id", "runde", "minutter", "sekunder"])
+import lagring
+from config import RUNDE_START_TIME, EVENT_DATO, TIDSSONE
 
 
 def les_deltakere() -> dict[str, str]:
     """Returnerer dict id -> navn."""
-    linjer = deltakere_fil.les_hele_filen()
-    deltakere: dict[str, str] = {}
-    for linje in linjer[1:]:
-        deler = linje.strip().split(",")
-        if len(deler) >= 2:
-            deltakere[deler[0]] = deler[1]
-    return deltakere
+    data = lagring.les_deltakere()
+    return {d["id"]: d["navn"] for d in data}
 
 
 def les_rundetider() -> list[dict]:
-    """Returnerer liste med dicts: id, runde, minutter, sekunder."""
-    linjer = rundetider_fil.les_hele_filen()
-    rader: list[dict] = []
-    for linje in linjer[1:]:
-        deler = linje.strip().split(",")
-        if len(deler) >= 4:
-            try:
-                rader.append({
-                    "id": deler[0],
-                    "runde": int(deler[1]),
-                    "minutter": int(deler[2]),
-                    "sekunder": int(deler[3]),
-                })
-            except ValueError:
-                continue
-    return rader
-
-
-def total_sekunder(m: int, s: int) -> int:
-    return m * 60 + s
+    """Returnerer liste med dicts: deltaker_id, runde, tid_sekunder."""
+    data = lagring.les_rundetider()
+    return [
+        {
+            "id": d["deltaker_id"],
+            "runde": d["runde"],
+            "tid_sekunder": d["tid_sekunder"],
+        }
+        for d in data
+    ]
 
 
 def formater_tid(total_sek: int) -> str:

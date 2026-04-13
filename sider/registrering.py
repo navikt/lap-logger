@@ -1,8 +1,8 @@
 import streamlit as st
 import time
 
-from modeller import Deltaker
-from hjelper import les_deltakere, deltakere_fil
+import lagring
+from hjelper import les_deltakere
 
 
 def vis(fane):
@@ -42,8 +42,7 @@ def vis(fane):
                         time.time(), True,
                     )
                 else:
-                    deltaker = Deltaker(id=deltaker_id, navn=deltaker_navn)
-                    deltakere_fil.skriv(rad=deltaker.rad())
+                    lagring.legg_til_deltaker(deltaker_id, deltaker_navn)
                     st.session_state[feedback_key] = (
                         f"✅ {deltaker_navn} ({deltaker_id}) registrert!",
                         time.time(), False,
@@ -51,13 +50,12 @@ def vis(fane):
                 st.rerun()
 
         st.header("Registrerte deltakere")
-        deltakere = deltakere_fil.les_hele_filen()
-        rader = [
-            {"Startnummer": i, "Navn": r[1], "Id": r[0]}
-            for i, rad in enumerate(deltakere[1:], start=1)
-            if len(r := rad.strip().split(",")) >= 2
-        ]
-        if rader:
+        alle_deltakere = lagring.les_deltakere()
+        if alle_deltakere:
+            rader = [
+                {"Startnummer": d.get("startnummer", i), "Navn": d["navn"], "Id": d["id"]}
+                for i, d in enumerate(alle_deltakere, start=1)
+            ]
             st.dataframe(rader, hide_index=True, column_config={
                 "Startnummer": st.column_config.NumberColumn(width="small"),
                 "Navn": st.column_config.TextColumn(width="large"),

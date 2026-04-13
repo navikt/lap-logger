@@ -2,11 +2,9 @@ import streamlit as st
 import time
 from datetime import datetime
 
+import lagring
 from config import ANTALL_RUNDER, RUNDE_START_TIME, TIDSSONE
-from hjelper import (
-    les_deltakere, les_rundetider, rundetider_fil,
-    total_sekunder, formater_tid, runde_starttid,
-)
+from hjelper import les_deltakere, les_rundetider, formater_tid, runde_starttid
 
 
 def vis(faner):
@@ -40,21 +38,21 @@ def vis(faner):
                     lagre_runde = st.form_submit_button("Registrer tid")
 
                 if lagre_runde and rid:
-                    allerede_registrert = any(
-                        t["id"] == rid and t["runde"] == runde_nr for t in alle_tider
-                    )
-                    if allerede_registrert:
+                    if lagring.finnes_rundetid(rid, runde_nr):
                         st.session_state[feedback_key] = (
                             f"❌ {deltaker_map.get(rid, rid)} er allerede registrert i runde {runde_nr}",
+                            time.time(), True,
+                        )
+                    elif rid not in deltaker_map:
+                        st.session_state[feedback_key] = (
+                            f"❌ Id '{rid}' er ikke registrert som deltaker",
                             time.time(), True,
                         )
                     else:
                         naa = datetime.now(TIDSSONE)
                         delta = naa - starttid
                         tot_sek = max(int(delta.total_seconds()), 0)
-                        rmin = tot_sek // 60
-                        rsek = tot_sek % 60
-                        rundetider_fil.skriv([rid, str(runde_nr), str(rmin), str(rsek)])
+                        lagring.legg_til_rundetid(rid, runde_nr, tot_sek)
                         navn = deltaker_map.get(rid, rid)
                         st.session_state[feedback_key] = (
                             f"✅ {navn} — {formater_tid(tot_sek)}",
@@ -65,7 +63,7 @@ def vis(faner):
             # Vis resultattavle for denne runden, sortert på tid (stigende)
             runde_tider = [t for t in alle_tider if t["runde"] == runde_nr]
             if runde_tider:
-                runde_tider.sort(key=lambda t: total_sekunder(t["minutter"], t["sekunder"]))
+                runde_tider.sort(key=lambda t: t["tid_sekunder"])
                 medaljer = {1: "🥇", 2: "🥈", 3: "🥉"}
                 tabell = []
                 for plassering, t in enumerate(runde_tider, start=1):
@@ -73,7 +71,7 @@ def vis(faner):
                     tabell.append({
                         "#": f"{medaljer.get(plassering, '')} {plassering}",
                         "Navn": navn,
-                        "Rundetid": formater_tid(total_sekunder(t["minutter"], t["sekunder"])),
+                        "Rundetid": formater_tid(t["tid_sekunder"]),
                     })
                 st.subheader("Resultater")
                 st.dataframe(tabell, hide_index=True, use_container_width=True)
