@@ -1,11 +1,11 @@
-FROM python:3.14-slim
+FROM ghcr.io/astral-sh/uv:python3.13-bookworm-slim
 
 WORKDIR /app
 
 ENV UV_CACHE_DIR=/tmp/uv-cache
 
 COPY pyproject.toml uv.lock ./
-RUN pip install uv && uv sync --frozen --no-dev
+RUN uv sync --frozen --no-dev
 
 COPY . .
 
