@@ -45,7 +45,9 @@ def vis(fane):
                 {"Startnummer": d.get("startnummer", i), "Navn": d["navn"], "Id": d["id"]}
                 for i, d in enumerate(alle_deltakere, start=1)
             ]
-            st.dataframe(rader, hide_index=True, column_config={
+            st.dataframe(rader, hide_index=True, use_container_width=True,
+                         height=(len(rader) + 1) * 35 + 3,
+                         column_config={
                 "Startnummer": st.column_config.NumberColumn(width="small"),
                 "Navn": st.column_config.TextColumn(width="large"),
                 "Id": st.column_config.TextColumn(width="large"),

@@ -31,7 +31,7 @@ def vis(fane):
                     "Total tid": formater_tid(total_sek),
                 })
 
-            st.dataframe(tabell, hide_index=True)
+            st.dataframe(tabell, hide_index=True, use_container_width=True, height=(len(tabell) + 1) * 35 + 3)
         else:
             st.write("Ingen tider registrert ennå.")
 
