@@ -4,6 +4,8 @@ WORKDIR /app
 
 ENV UV_CACHE_DIR=/tmp/uv-cache
 ENV UV_PYTHON_DOWNLOADS=never
+ENV HOME=/tmp
+ENV STREAMLIT_CONFIG_DIR=/tmp/.streamlit
 
 COPY pyproject.toml uv.lock ./
 RUN uv sync --frozen --no-dev
