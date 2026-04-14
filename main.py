@@ -6,7 +6,7 @@ from sider import registrering, runder, totaloversikt, leaderboard
 from datetime import datetime
 
 
-st.set_page_config(layout="wide")
+st.set_page_config(layout="wide", page_title="Nav Backyard 2026")
 st_autorefresh(interval=60000, key="global_refresh")
 
 st.markdown(
