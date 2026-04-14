@@ -65,7 +65,7 @@ def vis(faner):
                         "Rundetid": formater_tid(t["tid_sekunder"]),
                     })
                 st.subheader("Resultater")
-                st.dataframe(tabell, hide_index=True, use_container_width=True)
+                st.dataframe(tabell, hide_index=True, use_container_width=True, height=(len(tabell) + 1) * 35 + 3)
             else:
                 st.write("Ingen tider registrert for denne runden ennå.")
 
