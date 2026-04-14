@@ -31,7 +31,14 @@ def vis(faner):
                     lagre_runde = st.form_submit_button("Registrer tid")
 
                 if lagre_runde and rid:
-                    if lagring.finnes_rundetid(rid, runde_nr):
+                    naa = datetime.now(TIDSSONE)
+                    delta = naa - starttid
+                    tot_sek = max(int(delta.total_seconds()), 0)
+                    if tot_sek > 3600:
+                        st.session_state[toast_key] = (
+                            f"Registrering stengt — mer enn 1 time siden runde {runde_nr} startet", "❌",
+                        )
+                    elif lagring.finnes_rundetid(rid, runde_nr):
                         navn = deltaker_map.get(rid, rid)
                         st.session_state[toast_key] = (
                             f"{navn} er allerede registrert i runde {runde_nr}", "❌",
@@ -41,9 +48,6 @@ def vis(faner):
                             f"Id '{rid}' er ikke registrert som deltaker", "❌",
                         )
                     else:
-                        naa = datetime.now(TIDSSONE)
-                        delta = naa - starttid
-                        tot_sek = max(int(delta.total_seconds()), 0)
                         lagring.legg_til_rundetid(rid, runde_nr, tot_sek)
                         navn = deltaker_map.get(rid, rid)
                         st.session_state[toast_key] = (
