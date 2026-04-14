@@ -1,4 +1,5 @@
 import streamlit as st
+import pandas as pd
 from datetime import datetime
 
 from config import ANTALL_RUNDER, RUNDE_START_TIME, TIDSSONE
@@ -37,14 +38,11 @@ def vis(fane):
                 deler.append(f"{timer:02d}t")
             deler.append(f"{minutter:02d}m")
 
-            countdown_tekst = (
-                f"⏱️ **Runde {neste_runde}** ({klokkeslett}) starter om\n"
-                f"## {' '.join(deler)}"
-            )
+            tid_str = ' '.join(deler)
             if total_sek_igjen < 300:
-                st.error(countdown_tekst)
+                st.error(f"⏱️ Runde {neste_runde} ({klokkeslett}) starter om  **{tid_str}**")
             else:
-                st.info(countdown_tekst)
+                st.info(f"⏱️ Runde {neste_runde} ({klokkeslett}) starter om  **{tid_str}**")
         elif naa >= runde_starttid(ANTALL_RUNDER):
             st.success("✅ **Alle runder er i gang eller fullført!**")
         else:
@@ -119,7 +117,16 @@ def vis(fane):
                 tabell.append(rad_total)
                 tabell.append(rad_runde)
 
-            st.dataframe(tabell, hide_index=True, height=(len(tabell) + 1) * 35 + 3)
+            df = pd.DataFrame(tabell)
+
+            def fargelegg_par(row):
+                person_nr = row.name // 2
+                if person_nr % 2 == 1:
+                    return ["background-color: rgba(128,128,128,0.1)"] * len(row)
+                return [""] * len(row)
+
+            styled = df.style.apply(fargelegg_par, axis=1)
+            st.dataframe(styled, hide_index=True, height=(len(tabell) + 1) * 35 + 3)
         else:
             st.write("Ingen tider registrert ennå.")
 
