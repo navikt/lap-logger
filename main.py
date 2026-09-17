@@ -1,9 +1,60 @@
 import streamlit as st
 from streamlit_autorefresh import st_autorefresh
-
-from config import ANTALL_RUNDER, EVENT_DATO, RUNDE_START_TIME, TIDSSONE
-from sider import registrering, runder, totaloversikt, leaderboard
 from datetime import datetime
+
+import lagring
+from config import ARRANGEMENTER, TIDSSONE
+from hjelper import parse_tidspunkt
+from sider import registrering, runder, totaloversikt, leaderboard
+
+
+def render_arrangement(arrangement_id: int, arrangement_navn: str):
+    with st.container():
+        arrangement = lagring.les_arrangement(arrangement_id)
+        if arrangement is None:
+            st.error(f"Fant ikke arrangement {arrangement_id}")
+            return
+
+        arrangement_start = parse_tidspunkt(arrangement["tidspunkt"])
+        antall_runder = arrangement["antall_runder"]
+
+        naa = datetime.now(TIDSSONE)
+        col_title, col_cd = st.columns([3, 2])
+        with col_title:
+            st.title(f"Nav Backyard {arrangement_navn} 🤘🏻💥")
+        with col_cd:
+            if naa < arrangement_start:
+                total_sek = max(int((arrangement_start - naa).total_seconds()), 0)
+                dager = total_sek // 86400
+                timer = (total_sek % 86400) // 3600
+                minutter = (total_sek % 3600) // 60
+
+                deler = []
+                if dager > 0:
+                    deler.append(f"{dager}d")
+                if dager > 0 or timer > 0:
+                    deler.append(f"{timer:02d}t")
+                deler.append(f"{minutter:02d}m")
+
+                countdown_tekst = f"### ⏱️ Starter om {' '.join(deler)}"
+                if total_sek < 300:
+                    st.error(countdown_tekst)
+                else:
+                    st.info(countdown_tekst)
+
+        fane_navn = (
+            ["Registrering"]
+            + [f"Runde {i}" for i in range(1, antall_runder + 1)]
+            + ["Totaloversikt", "Leaderboard"]
+        )
+        faner = st.tabs(fane_navn)
+
+        registrering.vis(faner[0], arrangement_id=arrangement_id)
+        runder.vis(faner, arrangement_id=arrangement_id,
+                   antall_runder=antall_runder, arrangement_start=arrangement_start)
+        totaloversikt.vis(faner[antall_runder + 1], arrangement_id=arrangement_id,
+                          antall_runder=antall_runder, arrangement_start=arrangement_start)
+        leaderboard.vis(faner[antall_runder + 2], arrangement_id=arrangement_id)
 
 
 st.set_page_config(layout="wide", page_title="Nav Backyard 2026")
@@ -22,43 +73,8 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# Overskrift med countdown til arrangementet
-event_start = datetime(*EVENT_DATO, hour=RUNDE_START_TIME, tzinfo=TIDSSONE)
-naa = datetime.now(TIDSSONE)
-col_title, col_cd = st.columns([3, 2])
-with col_title:
-    st.title("Nav Backyard 2026 🤘🏻💥")
-with col_cd:
-    if naa < event_start:
-        total_sek = max(int((event_start - naa).total_seconds()), 0)
-        dager = total_sek // 86400
-        timer = (total_sek % 86400) // 3600
-        minutter = (total_sek % 3600) // 60
-
-        deler = []
-        if dager > 0:
-            deler.append(f"{dager}d")
-        if dager > 0 or timer > 0:
-            deler.append(f"{timer:02d}t")
-        deler.append(f"{minutter:02d}m")
-
-        countdown_tekst = f"### ⏱️ Starter om {' '.join(deler)}"
-        if total_sek < 300:
-            st.error(countdown_tekst)
-        else:
-            st.info(countdown_tekst)
-
-# --------------- faner ---------------
-
-fane_navn = (
-    ["Registrering"]
-    + [f"Runde {i}" for i in range(1, ANTALL_RUNDER + 1)]
-    + ["Totaloversikt", "Leaderboard"]
-)
-
-faner = st.tabs(fane_navn)
-
-registrering.vis(faner[0])
-runder.vis(faner)
-totaloversikt.vis(faner[ANTALL_RUNDER + 1])
-leaderboard.vis(faner[ANTALL_RUNDER + 2])
+arrangement_tabs = st.tabs(["Høst 2026", "Vår 2026"])
+with arrangement_tabs[0]:
+    render_arrangement(ARRANGEMENTER["Høst 2026"], "Høst 2026")
+with arrangement_tabs[1]:
+    render_arrangement(ARRANGEMENTER["Vår 2026"], "Vår 2026")

@@ -1,18 +1,18 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import lagring
-from config import RUNDE_START_TIME, EVENT_DATO, TIDSSONE
+from config import TIDSSONE
 
 
-def les_deltakere() -> dict[str, str]:
+def les_deltakere(arrangement_id: int | None = None) -> dict[str, str]:
     """Returnerer dict id -> navn."""
-    data = lagring.les_deltakere()
+    data = lagring.les_deltakere(arrangement_id)
     return {d["id"]: d["navn"] for d in data}
 
 
-def les_rundetider() -> list[dict]:
+def les_rundetider(arrangement_id: int | None = None) -> list[dict]:
     """Returnerer liste med dicts: deltaker_id, runde, tid_sekunder."""
-    data = lagring.les_rundetider()
+    data = lagring.les_rundetider(arrangement_id)
     return [
         {
             "id": d["deltaker_id"],
@@ -23,7 +23,8 @@ def les_rundetider() -> list[dict]:
     ]
 
 
-def formater_tid(total_sek: int) -> str:
+def formater_tid(total_sek: float) -> str:
+    total_sek = int(round(total_sek))
     t = total_sek // 3600
     m = (total_sek % 3600) // 60
     s = total_sek % 60
@@ -32,8 +33,16 @@ def formater_tid(total_sek: int) -> str:
     return f"{m}m {s:02d}s"
 
 
-def runde_starttid(runde_nr: int) -> datetime:
-    """Returnerer starttidspunkt for en gitt runde på event-dagen."""
-    t = RUNDE_START_TIME + (runde_nr - 1)
-    return datetime(*EVENT_DATO, hour=t, minute=0, second=0, tzinfo=TIDSSONE)
+def parse_tidspunkt(tidspunkt) -> datetime:
+    """Konverterer arrangementets tidspunkt (ISO-streng eller datetime) til lokal tidssone."""
+    if isinstance(tidspunkt, str):
+        dt = datetime.fromisoformat(tidspunkt)
+    else:
+        dt = tidspunkt
+    return dt.astimezone(TIDSSONE)
+
+
+def runde_starttid(runde_nr: int, arrangement_start: datetime) -> datetime:
+    """Returnerer starttidspunkt for en gitt runde ut fra arrangementets starttidspunkt."""
+    return arrangement_start + timedelta(hours=runde_nr - 1)
 
